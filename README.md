@@ -407,6 +407,119 @@ s1.substr(m, n);          // Substring of size n starting at s1[m]
 s1.c_str();               // Convert to const char*
 s1 = to_string(12.05);    // Converts number to string
 getline(cin, s);          // Read line ending in '\n'
+
+
+#include <iostream>
+#include <string>
+#include <string_view> // C++17
+
+int main() {
+    // =========================================================================
+    // 1. HEADERS & INITIALIZATION
+    // =========================================================================
+    std::string s1;                           // Empty string
+    std::string s2 = "Hello";                 // From literal
+    std::string s3(s2);                       // Copy constructor
+    std::string s4(5, 'A');                   // "AAAAA"
+    std::string s5(s2, 1, 3);                 // Substring init: "ell"
+
+    // =========================================================================
+    // 2. ITERATORS & ELEMENT ACCESS
+    // =========================================================================
+    std::string str = "C++Programming";
+    
+    char c1 = str[0];                         // 'C' (Fast, no bounds check)
+    char c2 = str.at(1);                      // '+' (Safe, throws out_of_range)
+    char front = str.front();                 // 'C'
+    char back = str.back();                   // 'g'
+
+    auto it_start = str.begin();              // Iterator to first char
+    auto it_end   = str.end();                // Iterator to past-the-end char
+    auto r_start  = str.rbegin();             // Reverse iterator to last char
+
+    // =========================================================================
+    // 3. CAPACITY & SIZE
+    // =========================================================================
+    size_t len = str.size();                  // or str.length() -> 14
+    bool is_empty = str.empty();              // false
+    
+    std::string cap_demo = "Buffer";
+    cap_demo.reserve(50);                     // Pre-allocates memory for 50 chars
+    size_t cap = cap_demo.capacity();         // >= 50
+    
+    cap_demo.resize(10, 'x');                 // "Bufferxxxx"
+    cap_demo.clear();                         // Size becomes 0
+
+    // =========================================================================
+    // 4. STRING MANIPULATION
+    // =========================================================================
+    std::string manip = "Hello";
+    manip += " World";                        // "Hello World"
+    manip.append("!");                        // "Hello World!"
+    manip.push_back('?');                     // "Hello World!?"
+    manip.insert(5, " there");                // "Hello there World!?"
+
+    std::string del_demo = "Unbelievable";
+    del_demo.pop_back();                      // "Unbelievabl"
+    del_demo.erase(0, 2);                     // Erase 2 chars from index 0 -> "believabl"
+
+    std::string repl_demo = "I love Java";
+    repl_demo.replace(7, 4, "C++");           // "I love C++"
+    std::string sub = repl_demo.substr(2, 4); // "love" (index 2, length 4)
+
+    // =========================================================================
+    // 5. SEARCHING & FINDING
+    // =========================================================================
+    std::string search_str = "Hello World, Hello Universe";
+    
+    size_t pos1 = search_str.find("Hello");             // 0
+    size_t pos2 = search_str.find("Hello", 5);          // 13 (Starts search at index 5)
+    size_t pos3 = search_str.rfind("Hello");            // 13 (Reverse find)
+    size_t pos4 = search_str.find_first_of("aeiou");    // 1 (index of 'e')
+    size_t pos5 = search_str.find_first_not_of("Hle "); // 4 (index of 'o')
+
+    // Safe checking pattern
+    if (search_str.find("Python") == std::string::npos) {
+        // "std::string::npos" means "not found"
+    }
+
+    // =========================================================================
+    // 6. STRING CONVERSIONS
+    // =========================================================================
+    // Numerical to String
+    std::string s_int = std::to_string(42);
+    std::string s_double = std::to_string(3.14159);
+
+    // String to Numerical
+    int i = std::stoi("42");
+    double d = std::stod("2.71828");
+
+    // C-Style String Conversion
+    std::string c_demo = "Interop";
+    const char* c_str = c_demo.c_str();       // Null-terminated raw pointer
+
+    // =========================================================================
+    // 7. INPUT / OUTPUT (I/O) NOTES
+    // =========================================================================
+    /*
+    std::cin >> s1;                           // Reads until whitespace
+    std::getline(std::cin, s1);               // Reads whole line including spaces
+    std::getline(std::cin, s1, ',');          // Reads until custom delimiter ','
+    */
+
+    // =========================================================================
+    // 8. PERFORMANCE & MODERN C++ (C++17 / C++20)
+    // =========================================================================
+    // C++17: std::string_view for zero-allocation read-only string parameters
+    std::string_view view = "Read-only preview"; 
+
+    // C++20: Prefix and Suffix checking
+    std::string file = "dataset.csv";
+    bool starts = file.starts_with("data");   // true
+    bool ends = file.ends_with(".csv");       // true
+
+    return 0;
+}
 ```
 
 ## `vector` (Variable sized array/stack with built in memory allocation)
