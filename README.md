@@ -542,6 +542,170 @@ for (vector<int>::iterator p=a.begin(); p!=a.end(); ++p)
 vector<int> b(a.begin(), a.end());  // b is copy of a
 vector<T> c(n, x);        // c[0]..c[n-1] init to x
 T d[10]; vector<T> e(d, d+10);      // e is initialized from d
+
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm> // For std::sort, std::find, etc.
+
+// =====================================================================
+// C++ std::vector COMPREHENSIVE CHEATSHEET
+// =====================================================================
+
+void printVector(const std::string& label, const std::vector<int>& v) {
+    std::cout << label << ": [ ";
+    for (const int& el : v) std::cout << el << " ";
+    std::cout << "]\n";
+}
+
+int main() {
+    // -----------------------------------------------------------------
+    // 1. INITIALIZATION & CONSTRUCTORS
+    // -----------------------------------------------------------------
+    std::vector<int> v1;                               // Empty vector
+    std::vector<int> v2(5);                            // Size 5, values initialized to 0
+    std::vector<int> v3(5, 10);                        // Size 5, all values initialized to 10
+    std::vector<int> v4 = {1, 2, 3, 4, 5};             // Initializer list (C++11)
+    std::vector<int> v5(v4);                           // Copy constructor
+    std::vector<int> v6(v4.begin(), v4.begin() + 3);   // Range constructor: {1, 2, 3}
+
+    // -----------------------------------------------------------------
+    // 2. CAPACITY & SIZE
+    // -----------------------------------------------------------------
+    v4.size();       // Returns number of elements (5)
+    v4.capacity();   // Returns allocated storage capacity (>= size)
+    v4.empty();      // Returns true if empty, false otherwise
+    v4.max_size();   // Returns maximum possible number of elements
+
+    v4.resize(7);    // Changes size to 7 (adds 2 new elements initialized to 0)
+    v4.resize(3);    // Shrinks size to 3 (destroys elements past index 2)
+    
+    v4.reserve(20);  // Allocates memory for 20 elements to prevent reallocations
+    v4.shrink_to_fit(); // Requests reduction of capacity to fit size (C++11)
+
+    // -----------------------------------------------------------------
+    // 3. ELEMENT ACCESS
+    // -----------------------------------------------------------------
+    std::vector<int> accessVec = {10, 20, 30, 40, 50};
+    
+    int a = accessVec[1];       // Fast access (20). No bounds checking (undefined if out of bounds)
+    int b = accessVec.at(1);    // Safe access (20). Throws std::out_of_range if out of bounds
+    int front = accessVec.front(); // First element (10)
+    int back = accessVec.back();   // Last element (50)
+    int* ptr = accessVec.data();   // Direct pointer to underlying array
+
+    // -----------------------------------------------------------------
+    // 4. MODIFIERS (INSERT & ERASE)
+    // -----------------------------------------------------------------
+    std::vector<int> modVec;
+
+    // Adding elements
+    modVec.push_back(10);          // Adds 10 to end -> {10}
+    modVec.emplace_back(20);       // Constructs element in-place at end (more efficient for objects) -> {10, 20}
+
+    // Inserting elements (Iterators required)
+    modVec.insert(modVec.begin(), 5);               // Insert 5 at beginning -> {5, 10, 20}
+    modVec.insert(modVec.begin() + 2, 15);          // Insert 15 at index 2 -> {5, 10, 15, 20}
+    modVec.insert(modVec.end(), 2, 99);             // Insert two 99s at end -> {5, 10, 15, 20, 99, 99}
+    modVec.emplace(modVec.begin() + 1, 7);          // Emplace 7 at index 1 -> {5, 7, 10, 15, 20, 99, 99}
+
+    // Removing elements
+    modVec.pop_back();             // Removes last element -> {5, 7, 10, 15, 20, 99}
+    modVec.erase(modVec.begin());  // Erases first element -> {7, 10, 15, 20, 99}
+    modVec.erase(modVec.begin() + 1, modVec.begin() + 3); // Erases range [index 1, index 3) -> {7, 20, 99}
+
+    // Clearing & Swapping
+    std::vector<int> otherVec = {1, 2, 3};
+    modVec.swap(otherVec);         // Efficiently swaps contents of modVec and otherVec
+    modVec.clear();                // Removes all elements (size becomes 0, capacity remains unchanged)
+
+    // -----------------------------------------------------------------
+    // 5. ITERATORS & TRAVERSAL
+    // -----------------------------------------------------------------
+    std::vector<int> iterVec = {1, 2, 3, 4, 5};
+
+    // Forward Iterator
+    std::vector<int>::iterator it; 
+    for(it = iterVec.begin(); it != iterVec.end(); ++it) { *it += 1; } // Modifiable
+
+    // Constant Forward Iterator (Read-only)
+    for(std::vector<int>::const_iterator cit = iterVec.cbegin(); cit != iterVec.cend(); ++cit) { /* read only */ }
+
+    // Reverse Iterator
+    for(auto rit = iterVec.rbegin(); rit != iterVec.rend(); ++rit) { /* traverses 5 to 1 */ }
+
+    // Range-based for loop (C++11 preferred)
+    for (int val : iterVec) { /* by value */ }
+    for (int& ref : iterVec) { /* by reference (can modify) */ }
+    for (const auto& cref : iterVec) { /* const reference */ }
+
+    // -----------------------------------------------------------------
+    // 6. COMMON ALGORITHMS (<algorithm>)
+    // -----------------------------------------------------------------
+    std::vector<int> algoVec = {5, 2, 9, 1, 5, 6};
+
+    // Sorting (Ascending)
+    std::sort(algoVec.begin(), algoVec.end()); // {1, 2, 5, 5, 6, 9}
+
+    // Sorting (Descending)
+    std::sort(algoVec.rbegin(), algoVec.rend()); // {9, 6, 5, 5, 2, 1}
+
+    // Reversing
+    std::reverse(algoVec.begin(), algoVec.end()); // {1, 2, 5, 5, 6, 9}
+
+    // Finding an element
+    auto findIt = std::find(algoVec.begin(), algoVec.end(), 5);
+    if (findIt != algoVec.end()) {
+        int index = std::distance(algoVec.begin(), findIt); // Index of found element
+    }
+
+    // Erase-Remove Idiom (Pre-C++20 way to delete all occurrences of a value)
+    algoVec.erase(std::remove(algoVec.begin(), algoVec.end(), 5), algoVec.end()); // Removes all 5s
+
+    // C++20 way to erase elements
+    // std::erase(algoVec, 5); 
+
+    // -----------------------------------------------------------------
+    // 7. MULTIDIMENSIONAL VECTORS (2D)
+    // -----------------------------------------------------------------
+    // Method 1: Initialization list
+    std::vector<std::vector<int>> matrix1 = {
+        {1, 2, 3},
+        {4, 5, 6}
+    };
+
+    // Method 2: Fixed dimensions (Rows: 3, Cols: 4, Initialized to 0)
+    int rows = 3, cols = 4;
+    std::vector<std::vector<int>> matrix2(rows, std::vector<int>(cols, 0));
+
+    // Accessing 2D Vector
+    matrix2[0][1] = 5;
+
+    // -----------------------------------------------------------------
+    // 8. PERFORMANCE TIPS & TIME COMPLEXITIES
+    // -----------------------------------------------------------------
+    /*
+     * TIME COMPLEXITIES:
+     * - Random Access: O(1)
+     * - Insertion/Deletion at the end: O(1) amortized, O(N) if reallocation happens
+     * - Insertion/Deletion at beginning/middle: O(N) due to shifting elements
+     *
+     * MEMORY MANAGEMENT TIPS:
+     * 1. Use `vec.reserve(N)` if you know the maximum size beforehand. This avoids costly
+     * reallocations and copy/move operations as the vector dynamically grows.
+     * 2. Use `vec.emplace_back(...)` instead of `push_back(...)` when dealing with complex 
+     * objects to construct items directly in place and avoid a redundant copy/move.
+     * 3. Prefer `std::vector::at()` during debugging for safety, but use `operator[]` 
+     * in performance-critical loops after ensuring bounds are safe.
+     * 4. Passing vectors to functions should almost always be done by reference:
+     * `void process(const std::vector<int>& vec)` to avoid copying overhead.
+     */
+
+    return 0;
+}
+
+
 ```
 
 ## `deque` (Array stack queue)
