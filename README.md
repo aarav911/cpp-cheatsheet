@@ -707,6 +707,189 @@ int main() {
 
 
 ```
+## Working with matrices
+```cpp
+#include <iostream>
+#include <vector>
+#include <array>
+
+// ============================================================================
+// 1. PASSING MATRICES TO FUNCTIONS & UTILITIES
+// ============================================================================
+
+// Print utility for 2D Vector
+void printMatrix(const std::vector<std::vector<int>>& mat) {
+    for (const auto& row : mat) {
+        for (int val : row) {
+            std::cout << val << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+
+// Template function for traditional C-style arrays (deduces dimensions automatically)
+template <size_t R, size_t C>
+void printCStyleMatrix(int (&mat)[R][C]) {
+    for (size_t i = 0; i < R; ++i) {
+        for (size_t j = 0; j < C; ++j) {
+            std::cout << mat[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+
+// ============================================================================
+// 2. CORE MATRIX OPERATIONS
+// ============================================================================
+
+// Matrix Addition - O(R * C)
+std::vector<std::vector<int>> addMatrices(const std::vector<std::vector<int>>& A, 
+                                          const std::vector<std::vector<int>>& B) {
+    int r = A.size();
+    int c = A[0].size();
+    std::vector<std::vector<int>> result(r, std::vector<int>(c, 0));
+    
+    for (int i = 0; i < r; ++i) {
+        for (int j = 0; j < c; ++j) {
+            result[i][j] = A[i][j] + B[i][j];
+        }
+    }
+    return result;
+}
+
+// Matrix Multiplication - O(M * N * P)
+// If A is (M x N) and B is (N x P), result is (M x P)
+std::vector<std::vector<int>> multiplyMatrices(const std::vector<std::vector<int>>& A, 
+                                               const std::vector<std::vector<int>>& B) {
+    int m = A.size();
+    int n = A[0].size();
+    int p = B[0].size();
+    std::vector<std::vector<int>> result(m, std::vector<int>(p, 0));
+
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < p; ++j) {
+            for (int k = 0; k < n; ++k) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}
+
+// Matrix Transpose - O(R * C)
+std::vector<std::vector<int>> transposeMatrix(const std::vector<std::vector<int>>& mat) {
+    int r = mat.size();
+    int c = mat[0].size();
+    std::vector<std::vector<int>> result(c, std::vector<int>(r, 0));
+    
+    for (int i = 0; i < r; ++i) {
+        for (int j = 0; j < c; ++j) {
+            result[j][i] = mat[i][j];
+        }
+    }
+    return result;
+}
+
+// ============================================================================
+// MAIN EXECUTION
+// ============================================================================
+int main() {
+    // ------------------------------------------------------------------------
+    // REPRESENTATION TYPE A: Dynamic 2D Vector (Standard & Flexible)
+    // ------------------------------------------------------------------------
+    std::cout << "--- 1. Dynamic 2D Vectors ---\n";
+    std::vector<std::vector<int>> matA = {
+        {1, 2, 3},
+        {4, 5, 6}
+    }; // 2x3 Matrix
+    
+    std::vector<std::vector<int>> matB = {
+        {7,  8},
+        {9,  10},
+        {11, 12}
+    }; // 3x2 Matrix
+
+    // Get dimensions dynamically
+    int rowsA = matA.size();
+    int colsA = matA[0].size();
+    std::cout << "Matrix A dimensions: " << rowsA << "x" << colsA << "\n\n";
+
+    // ------------------------------------------------------------------------
+    // REPRESENTATION TYPE B: Flattened 1D Vector (Best Cache Performance)
+    // ------------------------------------------------------------------------
+    std::cout << "--- 2. Flattened 1D Vector (Row-Major) ---\n";
+    int flatRows = 2, flatCols = 3;
+    std::vector<int> flatMatrix(flatRows * flatCols, 0);
+    
+    // Assigning values via formula: Index = (row * total_columns) + col
+    for (int r = 0; r < flatRows; ++r) {
+        for (int c = 0; c < flatCols; ++c) {
+            flatMatrix[r * flatCols + c] = (r + 1) * (c + 1);
+        }
+    }
+    // Printing flattened matrix
+    for (int r = 0; r < flatRows; ++r) {
+        for (int c = 0; c < flatCols; ++c) {
+            std::cout << flatMatrix[r * flatCols + c] << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+
+    // ------------------------------------------------------------------------
+    // REPRESENTATION TYPE C: Compile-Time Fixed Arrays
+    // ------------------------------------------------------------------------
+    std::cout << "--- 3. Fixed-Size Arrays ---\n";
+    // Modern modern C++ style
+    std::array<std::array<int, 3>, 2> modernFixed = {{{1, 2, 3}, {4, 5, 6}}};
+    
+    // Traditional C-Style style
+    int classicFixed[2][3] = {
+        {10, 20, 30},
+        {40, 50, 60}
+    };
+    printCStyleMatrix(classicFixed);
+
+    // ------------------------------------------------------------------------
+    // EXECUTE MATRIX MATHEMATICS
+    // ------------------------------------------------------------------------
+    std::cout << "--- 4. Operations Demonstration ---\n";
+    
+    // 1. Multiplication
+    std::cout << "Matrix A * Matrix B:\n";
+    std::vector<std::vector<int>> matMult = multiplyMatrices(matA, matB);
+    printMatrix(matMult);
+
+    // 2. Transpose
+    std::cout << "Transpose of Matrix A:\n";
+    std::vector<std::vector<int>> matTransposed = transposeMatrix(matA);
+    printMatrix(matTransposed);
+
+    // 3. Addition (Using A and Transpose of B since dimensions match 2x3)
+    std::cout << "Matrix A + Transpose of Matrix B:\n";
+    std::vector<std::vector<int>> matB_T = transposeMatrix(matB);
+    std::vector<std::vector<int>> matSum = addMatrices(matA, matB_T);
+    printMatrix(matSum);
+
+    // ------------------------------------------------------------------------
+    // PERFORMANCE CHECKLIST RULE: Row-Major Traversal
+    // ------------------------------------------------------------------------
+    // Always loop 'i' (rows) then 'j' (columns) to preserve cache locality.
+    int sum = 0;
+    for (int i = 0; i < rowsA; ++i) {
+        for (int j = 0; j < colsA; ++j) {
+            sum += matA[i][j]; // Fast: Sequential memory access
+        }
+    }
+
+    return 0;
+}
+
+```
+
+---
 
 ## `deque` (Array stack queue)
 
